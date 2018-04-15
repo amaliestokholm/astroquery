@@ -25,10 +25,15 @@ from astroquery.utils.tap.xmlparser.jobListSaxParser import JobListSaxParser
 from astroquery.utils.tap.xmlparser import utils
 from astroquery.utils.tap.model.filter import Filter
 
-__all__ = ['Tap', 'TapPlus']
+__all__ = ['Tap', 'TapPlus', 'TapServerError']
 
 VERSION = "1.0.1"
 TAP_CLIENT_ID = "aqtappy-" + VERSION
+
+
+class TapServerError(Exception):
+    def __str__(self):
+        return self.args[0].reason
 
 
 class Tap(object):
@@ -222,7 +227,7 @@ class Tap(object):
             job.set_failed(True)
             if dump_to_file:
                 self.__connHandler.dump_to_file(suitableOutputFile, response)
-            raise Exception(response.reason)
+            raise TapServerError(response)
         else:
             print("Retrieving sync. results...")
             if dump_to_file:
